@@ -1,0 +1,14 @@
+# Archivos de PyCharm
+.idea/
+
+# Archivos de entornos virtuales
+venv/
+
+# Archivos y carpetas comunes de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Base de datos SQLite
+*.db
