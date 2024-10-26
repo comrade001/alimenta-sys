@@ -61,17 +61,18 @@ class ConsumptionRegistration(QWidget):
             QMessageBox.warning(self, "No Active Shift", "There is no active shift at this time.")
             return
 
-        # Verificar si el usuario ya ha consumido en el turno actual en el día de hoy
+        # Verificar el límite de consumo para el usuario en el turno actual
         today = date.today()
-        existing_consumption = session.query(Consumption).filter(
+        user_consumption_count = session.query(Consumption).filter(
             Consumption.user_id == user.id,
             Consumption.shift_id == current_shift.id,
             Consumption.consumed_at >= datetime.combine(today, time(0, 0)),
             Consumption.consumed_at < datetime.combine(today + timedelta(days=1), time(0, 0))
-        ).first()
+        ).count()
 
-        if existing_consumption:
-            QMessageBox.warning(self, "Already Consumed", "User has already consumed in this shift today.")
+        if user_consumption_count >= current_shift.meal_limit:
+            QMessageBox.warning(self, "User Shift Limit Reached",
+                                "The consumption limit for this user in the shift has been reached.")
             return
 
         # Seleccionar ítems de menú disponibles para el turno
@@ -89,14 +90,22 @@ class ConsumptionRegistration(QWidget):
                 QMessageBox.information(self, "Selection Canceled", "Menu selection was canceled.")
                 return
         else:
-            # Si solo hay un ítem, seleccionarlo automáticamente
             selected_menu_id = available_menu_items[0].id
 
-        # Crear el registro de consumo con el ítem seleccionado
+        # Obtener nombres históricos
+        menu_item = session.query(Menu).filter_by(id=selected_menu_id).first()
+        user_name = f"{user.first_name} {user.last_name}"
+        menu_item_name = menu_item.item_name
+        shift_name = current_shift.name
+
+        # Crear el registro de consumo con los valores históricos
         new_consumption = Consumption(
             user_id=user.id,
-            shift_id=current_shift.id,
+            user_name=user_name,
             menu_id=selected_menu_id,
+            menu_item_name=menu_item_name,
+            shift_id=current_shift.id,
+            shift_name=shift_name,
             consumed_at=datetime.now()
         )
         session.add(new_consumption)

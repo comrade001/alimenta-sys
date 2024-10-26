@@ -50,19 +50,18 @@ class Menu(Base):
     shift = relationship("Shift", back_populates="menu_items")
 
 
-# Modelo de Consumo
 class Consumption(Base):
     __tablename__ = 'consumptions'
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
+    user_name = Column(String)  # Almacenar el nombre completo del usuario en el momento del consumo
     menu_id = Column(Integer, ForeignKey('menu.id'))
+    menu_item_name = Column(String)  # Almacenar el nombre del ítem del menú en el momento del consumo
     shift_id = Column(Integer, ForeignKey('shifts.id'))
+    shift_name = Column(String)  # Almacenar el nombre del turno en el momento del consumo
     consumed_at = Column(DateTime, default=datetime.datetime.utcnow)
 
-    user = relationship("User")
-    menu_item = relationship("Menu")
-    shift = relationship("Shift")
 
 
 # Crear tablas
