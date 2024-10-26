@@ -43,7 +43,7 @@ class Menu(Base):
 
     id = Column(Integer, primary_key=True)
     item_name = Column(String, nullable=False)
-    availability = Column(String, nullable=False)  # Ej. "Disponible" o "Agotado"
+    availability = Column(String, nullable=False)  # Ejemplo: "Disponible" o "Agotado"
     shift_id = Column(Integer, ForeignKey('shifts.id'))  # Relación con turno
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 

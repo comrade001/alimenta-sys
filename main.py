@@ -3,6 +3,9 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMdiArea, QAction, QMdiSubWindow
 from database import session, User, Menu, Consumption
 from ui.user_management import UserManagement
+from ui.shift_management import ShiftManagement
+from ui.menu_management import MenuManagement
+from ui.consumption_registration import ConsumptionRegistration
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -37,6 +40,11 @@ class MainWindow(QMainWindow):
         consumption_action.triggered.connect(self.record_consumption)
         file_menu.addAction(consumption_action)
 
+        # Gestión de Turnos
+        shift_action = QAction("Shift Management", self)
+        shift_action.triggered.connect(self.manage_shifts)  # Aquí vinculamos la función manage_shifts
+        file_menu.addAction(shift_action)
+
     def manage_users(self):
         sub = QMdiSubWindow()
         sub.setWidget(UserManagement())
@@ -46,15 +54,24 @@ class MainWindow(QMainWindow):
 
     def manage_menu(self):
         sub = QMdiSubWindow()
-        sub.setWindowTitle("Gestión del Menú Diario")
-        # Aquí puedes importar y conectar tu módulo de gestión del menú
+        sub.setWidget(MenuManagement())
+        sub.setWindowTitle("Menu Management")
         self.mdi.addSubWindow(sub)
         sub.show()
 
     def record_consumption(self):
         sub = QMdiSubWindow()
-        sub.setWindowTitle("Registrar Consumo")
-        # Aquí puedes importar y conectar tu módulo de consumo
+        sub.setWidget(ConsumptionRegistration())
+        sub.setWindowTitle("Register Consumption")
+        # Ajustar el tamaño de la subventana
+        sub.resize(600, 400)  # Configura el tamaño deseado
+        self.mdi.addSubWindow(sub)
+        sub.show()
+
+    def manage_shifts(self):
+        sub = QMdiSubWindow()
+        sub.setWidget(ShiftManagement())
+        sub.setWindowTitle("Shift Management")
         self.mdi.addSubWindow(sub)
         sub.show()
 
