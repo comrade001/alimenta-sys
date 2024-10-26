@@ -76,6 +76,27 @@ class UserManagement(QWidget):
         layout.addLayout(button_layout)
         self.setLayout(layout)
 
+        # Conectar el evento de selección
+        self.user_list.itemSelectionChanged.connect(self.load_user_to_form)
+
+    def load_user_to_form(self):
+        """Load selected user's data into the form for editing."""
+        selected_item = self.user_list.currentItem()
+        if not selected_item:
+            return
+
+        # Extraer employee_id del texto del elemento seleccionado
+        employee_id = selected_item.text().split(" - ")[0]
+        user = session.query(User).filter_by(employee_id=employee_id).first()
+
+        if user:
+            # Rellenar los campos del formulario con los datos del usuario seleccionado
+            self.first_name_input.setText(user.first_name)
+            self.last_name_input.setText(user.last_name)
+            self.middle_name_input.setText(user.middle_name or "")
+            self.employee_id_input.setText(user.employee_id)
+            self.card_number_input.setText(user.card_number)
+
     def load_users(self):
         """Load users into the list widget."""
         self.user_list.clear()
@@ -107,6 +128,15 @@ class UserManagement(QWidget):
             QMessageBox.warning(self, "Input Error", "Please complete all mandatory fields.")
             return
 
+        # Verificar si employee_id o card_number ya existen en la base de datos
+        existing_user = session.query(User).filter(
+            (User.employee_id == employee_id) | (User.card_number == card_number)
+        ).first()
+
+        if existing_user:
+            QMessageBox.warning(self, "Duplicate Error", "A user with this employee ID or card number already exists.")
+            return
+
         new_user = User(
             first_name=first_name,
             last_name=last_name,
@@ -128,16 +158,36 @@ class UserManagement(QWidget):
             QMessageBox.warning(self, "Selection Error", "Please select a user to update.")
             return
 
-        employee_id, _ = selected_item.text().split(" - ")
-        user = session.query(User).filter_by(employee_id=employee_id).first()
+        first_name = self.first_name_input.text()
+        last_name = self.last_name_input.text()
+        middle_name = self.middle_name_input.text()
+        employee_id = self.employee_id_input.text()
+        card_number = self.card_number_input.text()
+
+        # Extraer el employee_id del usuario seleccionado en la lista
+        original_employee_id = selected_item.text().split(" - ")[0]
+        user = session.query(User).filter_by(employee_id=original_employee_id).first()
 
         if user:
-            user.first_name = self.first_name_input.text()
-            user.last_name = self.last_name_input.text()
-            user.middle_name = self.middle_name_input.text()
-            user.employee_id = self.employee_id_input.text()
-            user.card_number = self.card_number_input.text()
+            # Verificar si otro usuario tiene el mismo employee_id o card_number
+            duplicate_user = session.query(User).filter(
+                ((User.employee_id == employee_id) | (User.card_number == card_number)),
+                User.id != user.id  # Excluir el usuario actual
+            ).first()
+
+            if duplicate_user:
+                QMessageBox.warning(self, "Duplicate Error",
+                                    "A user with this employee ID or card number already exists.")
+                return
+
+            # Actualizar el usuario si no hay duplicados
+            user.first_name = first_name
+            user.last_name = last_name
+            user.middle_name = middle_name
+            user.employee_id = employee_id
+            user.card_number = card_number
             session.commit()
+
             QMessageBox.information(self, "Success", "User updated successfully.")
             self.load_users()
             self.clear_form()
