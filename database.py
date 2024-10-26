@@ -14,8 +14,11 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    first_name = Column(String, nullable=False)  # Nombre
+    last_name = Column(String, nullable=False)  # Apellido Paterno
+    middle_name = Column(String)  # Apellido Materno (puede ser opcional)
     employee_id = Column(String, unique=True, nullable=False)
+    card_number = Column(String, unique=True, nullable=False)  # Número de tarjeta (único)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
