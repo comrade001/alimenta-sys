@@ -12,3 +12,17 @@ __pycache__/
 
 # Base de datos SQLite
 *.db
+
+# Archivos de PyInstaller
+/build/
+/dist/
+/__pycache__/
+/*.spec
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dll
+*.dylib
+*.o
+*.a
