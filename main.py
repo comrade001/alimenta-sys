@@ -2,6 +2,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMdiArea, QAction, QMdiSubWindow
 from database import session, User, Menu, Consumption
+from ui.user_management import UserManagement
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -38,8 +39,8 @@ class MainWindow(QMainWindow):
 
     def manage_users(self):
         sub = QMdiSubWindow()
-        sub.setWindowTitle("Gestión de Usuarios")
-        # Aquí puedes importar y conectar tu módulo de gestión de usuarios
+        sub.setWidget(UserManagement())
+        sub.setWindowTitle("User Management")
         self.mdi.addSubWindow(sub)
         sub.show()
 
